@@ -1,1 +1,14 @@
-code for the DES model in the following paper: https://www.sciencedirect.com/science/article/pii/S1546144024010068
+Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls
+
+This repository contains code and results accompanying the paper “Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls” published in the Journal of the American College of Radiology. The study develops and implements a discrete event simulation of a high-volume breast imaging center to evaluate risk-stratified screening (RSS) appointment scheduling and its impact on workflow efficiency and recall variability. The simulation integrates AI-triaged same-day diagnostic workups and compares traditional scheduling to RSS templates informed by patient cancer risk scores (from Tyrer-Cuzick and deep learning models). Our findings indicate that RSS can reduce recall variance and modestly improve capacity within normal clinic hours while maintaining feasibility and minimal changes in wait times. 
+
+
+Please cite: Lin Y, Hoyt AC, Manuel VG, et al. Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls. J Am Coll Radiol. 2025;22(3):297-306. doi:10.1016/j.jacr.2024.12.010
+
+This repository includes:
+* Simulation code for modeling screening workflows
+* Scheduling templates and risk category definitions
+* Scripts to reproduce key figures and performance metrics
+* Documentation for setting up and extending the simulation framework
+
+
