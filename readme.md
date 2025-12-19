@@ -43,8 +43,6 @@ If you use this code or our findings in your research, please cite:
 Clone the repository and install the required dependencies:
 
 ```bash
-git clone https://github.com/[Your-Username]/RSS-Simulation.git
-cd RSS-Simulation
 pip install -r requirements.txt
 
 ```
