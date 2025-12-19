@@ -1,14 +1,128 @@
-Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls
+Here is a professionally formatted version of your `README.md`. It utilizes clear hierarchies, technical callouts, and clean command blocks to make the repository user-friendly for other researchers.
 
-This repository contains code and results accompanying the paper “Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls” published in the Journal of the American College of Radiology. The study develops and implements a discrete event simulation of a high-volume breast imaging center to evaluate risk-stratified screening (RSS) appointment scheduling and its impact on workflow efficiency and recall variability. The simulation integrates AI-triaged same-day diagnostic workups and compares traditional scheduling to RSS templates informed by patient cancer risk scores (from Tyrer-Cuzick and deep learning models). Our findings indicate that RSS can reduce recall variance and modestly improve capacity within normal clinic hours while maintaining feasibility and minimal changes in wait times. 
+---
+
+# Risk-Stratified Screening (RSS) Simulation Study
+
+This repository contains the source code and simulation framework for the study:
+
+**"Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls"** *Published in the Journal of the American College of Radiology (JACR).*
+
+## Overview
+
+We developed a **Discrete Event Simulation (DES)** of a high-volume breast imaging center to evaluate how risk-stratified screening (RSS) impacts clinic workflow. The simulation explores the integration of AI-triaged same-day diagnostic workups and compares traditional scheduling to RSS templates informed by patient cancer risk scores (Tyrer-Cuzick and deep learning models).
+
+### Key Findings
+
+* **Variance Reduction:** RSS scheduling significantly reduces the daily variability of diagnostic recalls.
+* **Throughput:** RSS can modestly improve patient capacity within normal clinic hours.
+* **Wait Times:** Improvements in workflow were achieved with minimal changes to patient wait times.
+
+---
+
+## Citation
+
+If you use this code or our findings in your research, please cite:
+
+> Lin Y, Hoyt AC, Manuel VG, et al. Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls. **J Am Coll Radiol.** 2025;22(3):297-306. doi:10.1016/j.jacr.2024.12.010
+
+---
+
+## Repository Contents
+
+* **Simulation Core:** DES logic modeling breast imaging center operations.
+* **Scheduling Templates:** Definitions for risk categories (RSS 1-3) and template structures.
+* **Analysis Scripts:** Tools to reproduce figures, throughput metrics, and variance testing.
+* **Data Tools:** Scripts to generate screener pools based on risk distributions.
+
+---
+
+## Getting Started
+
+### 1. Installation
+
+Clone the repository and install the required dependencies:
+
+```bash
+git clone https://github.com/[Your-Username]/RSS-Simulation.git
+cd RSS-Simulation
+pip install -r requirements.txt
+
+```
+
+### 2. Phase 1: Run Baseline Simulations (Non-RSS)
+
+First, generate the control data by running the simulation without smart scheduling logic.
+
+* **Baseline Workflow (Traditional):**
+```bash
+python run_simulation.py --is_1ss no
+
+```
 
 
-Please cite: Lin Y, Hoyt AC, Manuel VG, et al. Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls. J Am Coll Radiol. 2025;22(3):297-306. doi:10.1016/j.jacr.2024.12.010
+* **Same-Day Workflow (One-Stop Shop):**
+```bash
+python run_simulation.py --is_1ss yes
 
-This repository includes:
-* Simulation code for modeling screening workflows
-* Scheduling templates and risk category definitions
-* Scripts to reproduce key figures and performance metrics
-* Documentation for setting up and extending the simulation framework
+```
+
+
+
+### 3. Phase 2: Create Screener Pools
+
+The "Smart" scheduling logic requires a pre-generated pool of screeners to draw from for risk-stratification.
+
+* **For Baseline Workflow:**
+```bash
+python create_screener_pool.py --workflow no_1ss
+
+```
+
+
+* **For Same-Day (1SS) Workflow:**
+```bash
+python create_screener_pool.py --workflow 1ss
+
+```
+
+
+
+### 4. Phase 3: Run RSS Simulations (Smart Scheduling)
+
+Run the simulations again using the `--smart` flag to apply the Risk-Stratified templates.
+
+* **Baseline + RSS:**
+```bash
+python run_simulation.py --is_1ss no --smart
+
+```
+
+
+* **Same-Day (1SS) + RSS:**
+```bash
+python run_simulation.py --is_1ss yes --smart
+
+```
+
+
+
+---
+
+## Analysis & Results
+
+To compare the results between **Smart** and **No-Smart** runs, use the provided analysis suite:
+
+```bash
+python run_analysis.py --workflow 1ss
+
+```
+
+---
+
+## Contact
+
+For questions regarding the simulation logic or data structures, please open an issue in this repository or contact the lead author.
+
 
 
