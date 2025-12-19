@@ -14,6 +14,9 @@ We developed a **Discrete Event Simulation (DES)** of a high-volume breast imagi
 * **Throughput:** RSS can modestly improve patient capacity within normal clinic hours.
 * **Wait Times:** Improvements in workflow were achieved with minimal changes to patient wait times.
 
+### Workflows
+![1-s2 0-S1546144024010068-gr3_lrg](https://github.com/user-attachments/assets/746b7f1b-f6d6-4034-9957-a4e93be1163e)
+
 ---
 
 ## Citation
@@ -100,6 +103,12 @@ python run_simulation.py --is_1ss no --smart
 python run_simulation.py --is_1ss yes --smart
 
 ```
+
+
+### 5. Examplme Output
+
+<img width="728" height="220" alt="Capture" src="https://github.com/user-attachments/assets/66078a9b-9dd0-4661-96b8-a702beb803a1" />
+
 
 ---
 
