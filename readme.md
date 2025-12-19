@@ -101,19 +101,6 @@ python run_simulation.py --is_1ss yes --smart
 
 ```
 
-
-
----
-
-## Analysis & Results
-
-To compare the results between **Smart** and **No-Smart** runs, use the provided analysis suite:
-
-```bash
-python run_analysis.py --workflow 1ss
-
-```
-
 ---
 
 ## Contact
