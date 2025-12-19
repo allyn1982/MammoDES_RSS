@@ -2,7 +2,7 @@
 
 This repository contains the source code and simulation framework for the study:
 
-**"Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls"** *Published in the Journal of the American College of Radiology (JACR).*
+**"Risk-Stratified Screening: A Simulation Study of Scheduling Templates on Daily Mammography Recalls"** *Published in the Journal of the American College of Radiology (JACR). https://doi.org/10.1016/j.jacr.2024.12.010*
 
 ## Overview
 
