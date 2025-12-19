@@ -68,7 +68,7 @@ python run_simulation.py --is_1ss yes
 
 ### 3. Phase 2: Create Screener Pools
 
-The "Smart" scheduling logic requires a pre-generated pool of screeners to draw from for risk-stratification.
+The "Smart" scheduling (i.e., RSS) logic requires a pre-generated pool of screeners to draw from for risk-stratification.
 
 * **For Baseline Workflow:**
 ```bash
