@@ -66,26 +66,8 @@ python run_simulation.py --is_1ss yes
 
 
 
-### 3. Phase 2: Create Screener Pools
 
-The "Smart" scheduling (i.e., RSS) logic requires a pre-generated pool of screeners to draw from for risk-stratification.
-
-* **For Baseline Workflow:**
-```bash
-python create_screener_pool.py --workflow no_1ss
-
-```
-
-
-* **For Same-Day (1SS) Workflow:**
-```bash
-python create_screener_pool.py --workflow 1ss
-
-```
-
-
-
-### 4. Phase 3: Run RSS Simulations (Smart Scheduling)
+### 3. Phase 2: Run RSS Simulations (Smart Scheduling)
 
 Run the simulations again using the `--smart` flag to apply the Risk-Stratified templates.
 
@@ -103,7 +85,7 @@ python run_simulation.py --is_1ss yes --smart
 ```
 
 
-### 5. Examplme Output
+### 4. Examplme Output
 
 <img width="728" height="220" alt="Capture" src="https://github.com/user-attachments/assets/66078a9b-9dd0-4661-96b8-a702beb803a1" />
 
