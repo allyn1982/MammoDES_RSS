@@ -176,16 +176,20 @@ if __name__ == "__main__":
 
         print(f"Completed Batch for Seed {seed}")
 
-    print("\n--- Simulation Complete. Running Post-Simulation Consolidation ---")
+    if not args.smart:
+        print("\n--- Simulation Complete. Running Screener Pool Consolidation ---")
 
-    # Determine the path to write screener pool files
-    folder_type = "1ss" if is_1ss_bool else "no_1ss"
-    smart_suffix = "_smart" if args.smart else ""
-    path_to_logs = f'./output/output_temp_{folder_type}{smart_suffix}/'
+        folder_type = "1ss" if is_1ss_bool else "no_1ss"
+        smart_suffix = "_smart"
+        path_to_logs = f'./output/output_temp_{folder_type}{smart_suffix}/'
 
-    load_all_screen_pts_unified(
-        path_log=path_to_logs,
-        end_hour=100,
-        workflow_type=is_1ss_bool,
-        file_name_prefix='all_screeners'
-    )
+        workflow_label = "1ss" if is_1ss_bool else "baseline"
+
+        load_all_screen_pts_unified(
+            path_log=path_to_logs,
+            end_hour=100,
+            workflow_type=workflow_label,
+            file_name_prefix=f'all_screeners_{workflow_label}'
+        )
+    else:
+        print("\n--- Simulation Complete. Smart=False → skipping screener pool generation ---")

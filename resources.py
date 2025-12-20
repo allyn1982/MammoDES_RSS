@@ -85,6 +85,9 @@ class MammoClinic_1SS(object):
         if rad_change or rad_change_2:
             self.radiologist_same_day = simpy.Resource(env, num_radiologist_same_day)
 
+        self.daily_screener_count = 0
+        self.current_day = 0
+
     def pt_checkin(self, patient):
         yield self.env.timeout(self.rg.normal(0.05, 0.01))
 

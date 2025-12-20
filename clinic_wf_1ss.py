@@ -5,12 +5,14 @@ import pandas as pd
 
 from params import exam_type_prob, screener_type_1ss
 
-# count screeners
-patient_screener_count = 0
-
 def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_dict, rad_change, rad_change_2,
               rss_1, rss_2, rss_3, rss_1_recall, rss_2_recall, rss_3_recall, recall_dx, smart, agreement_rss_same_day_ai,
                  num_days_8_rss_3, avg_num_rss_3, all_screener_df, patient_screener_count, i):
+    day = i
+    if clinic.current_day != day:
+        clinic.current_day = day
+        clinic.daily_screener_count = 0
+
     # patient arrives to clinic
     arrival_ts = env.now
 
@@ -159,7 +161,8 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
             # 1-4. screen mammo w/ or w/o same-day dx
             if number <= pct_screen_mammo_after_ai_us_scheduled:
 
-                patient_screener_count += 1
+                clinic.daily_screener_count += 1
+                count = clinic.daily_screener_count
 
                 if not smart: # random draw from screener pool
                     # determine RSS
@@ -221,7 +224,7 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         num_rss_3_per_day = avg_num_rss_3
                         num_rss_2_per_day = avg_num_rss_3
 
-                    if patient_screener_count <= num_rss_3_per_day: # rss 3
+                    if count <= num_rss_3_per_day: # rss 3
                         all_screener_df_rss_3 = all_screener_df[all_screener_df.RSS==3]
                         sampled_row = all_screener_df_rss_3.sample(n=1, replace=False)
                         RSS = 3
@@ -232,7 +235,10 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         patient_type = sampled_row.patient_type.to_list()[0]
                         all_screener_df_rss_3 = all_screener_df_rss_3.drop(sampled_row.index)
                         all_screener_df_rss_3.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_3.append(all_screener_df[all_screener_df.RSS.isin([1,2])])
+                        all_screener_df = pd.concat([
+                            all_screener_df_rss_3,
+                            all_screener_df[all_screener_df.RSS.isin([1, 2])]
+                        ], ignore_index=True).drop_duplicates(subset=['patient_id'])
                     elif num_rss_3_per_day + num_rss_2_per_day >= patient_screener_count > num_rss_3_per_day:
                         # rss 2
                         all_screener_df_rss_1_3 = all_screener_df[all_screener_df.RSS.isin([1,3])]
@@ -246,7 +252,13 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         patient_type = sampled_row.patient_type.to_list()[0]
                         all_screener_df_rss_2 = all_screener_df_rss_2.drop(sampled_row.index)
                         all_screener_df_rss_2.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_2.append(all_screener_df_rss_1_3)
+                        all_screener_df = (
+                            pd.concat(
+                                [all_screener_df_rss_2, all_screener_df_rss_1_3],
+                                ignore_index=True
+                            )
+                            .drop_duplicates(subset=['patient_id'])
+                        )
                     else: # rss 1
                         all_screener_df_rss_2_3 = all_screener_df[all_screener_df.RSS.isin([2,3])]
                         all_screener_df_rss_1 = all_screener_df[all_screener_df.RSS==1]
@@ -259,7 +271,10 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         patient_type = sampled_row.patient_type.to_list()[0]
                         all_screener_df_rss_1 = all_screener_df_rss_1.drop(sampled_row.index)
                         all_screener_df_rss_1.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_1.append(all_screener_df_rss_2_3)
+                        all_screener_df = (
+                            pd.concat([all_screener_df_rss_1, all_screener_df_rss_2_3], ignore_index=True)
+                            .drop_duplicates(subset=['patient_id'])
+                        )
 
                 # all screeners need screen mammo
                 with clinic.scanner.request() as request:
