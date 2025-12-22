@@ -15,7 +15,7 @@ We developed a **Discrete Event Simulation (DES)** of a high-volume breast imagi
 * **Wait Times:** Improvements in workflow were achieved with minimal changes to patient wait times.
 
 ### RSS scheduling Flow and Categories
-![1-s2 0-S1546144024010068-gr2](https://github.com/user-attachments/assets/f1a1671d-74f8-4705-81d5-78220a2371cb)
+![1-s2 0-S1546144024010068-gr1](https://github.com/user-attachments/assets/bff3da24-dc27-4bff-9606-fe10715deee1)
 
 
 ### Traditional VS. RSS Scheduling
