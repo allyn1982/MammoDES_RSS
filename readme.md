@@ -98,6 +98,8 @@ python run_simulation.py --is_1ss yes --smart
 
 ### 5. Post Simulation Analyses
 
+Compare simulation results (daily avg patient volume, waiting time, operating hours, recall variance) bewteen RSS and non-RSS scenarios
+
 * **Baseline - RSS VS. No-RSS:**
 
 ```bash
