@@ -224,33 +224,21 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         num_rss_3_per_day = avg_num_rss_3
                         num_rss_2_per_day = avg_num_rss_3
 
-                    #RSS 3 preferred
+                    # Replace the RSS selection with a more robust fallback
                     if count <= num_rss_3_per_day:
                         candidate_df = all_screener_df[all_screener_df.RSS == 3]
-
-                        if len(candidate_df) == 0:
-                            # fallback to RSS 2 then 1
-                            candidate_df = all_screener_df[all_screener_df.RSS.isin([2, 1])]
-
-                    #RSS 2 preferred
-                    elif num_rss_3_per_day + num_rss_2_per_day >= patient_screener_count > num_rss_3_per_day:
+                    elif count <= (num_rss_3_per_day + num_rss_2_per_day):
                         candidate_df = all_screener_df[all_screener_df.RSS == 2]
-
-                        if len(candidate_df) == 0:
-                            # fallback to RSS 3 then 1
-                            candidate_df = all_screener_df[all_screener_df.RSS.isin([3, 1])]
-
-                    #RSS 1 preferred
                     else:
                         candidate_df = all_screener_df[all_screener_df.RSS == 1]
 
-                        if len(candidate_df) == 0:
-                            # fallback to RSS 2 then 3
-                            candidate_df = all_screener_df[all_screener_df.RSS.isin([2, 3])]
-
-                    #final safety check
+                    # If the preferred group is empty, take ANYONE left rather than crashing
                     if len(candidate_df) == 0:
-                        raise RuntimeError("No screeners available in any RSS group")
+                        candidate_df = all_screener_df
+
+                    if len(candidate_df) == 0:
+                        # Only crash if the entire file is empty
+                        raise RuntimeError("Screener pool is completely exhausted")
 
                     sampled_row = candidate_df.sample(n=1, replace=False)
 
