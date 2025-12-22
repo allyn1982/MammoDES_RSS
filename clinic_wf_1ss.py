@@ -216,7 +216,7 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         RSS_recall = 'No'
                         dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
                         patient_type = 'screen'
-                else: # smart
+                else:  # smart
                     if i <= num_days_8_rss_3:
                         num_rss_3_per_day = avg_num_rss_3 + 1
                         num_rss_2_per_day = avg_num_rss_3 + 1
@@ -224,57 +224,44 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         num_rss_3_per_day = avg_num_rss_3
                         num_rss_2_per_day = avg_num_rss_3
 
-                    if count <= num_rss_3_per_day: # rss 3
-                        all_screener_df_rss_3 = all_screener_df[all_screener_df.RSS==3]
-                        sampled_row = all_screener_df_rss_3.sample(n=1, replace=False)
-                        RSS = 3
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        patient_type = sampled_row.patient_type.to_list()[0]
-                        all_screener_df_rss_3 = all_screener_df_rss_3.drop(sampled_row.index)
-                        all_screener_df_rss_3.reset_index(drop=True, inplace=True)
-                        all_screener_df = pd.concat([
-                            all_screener_df_rss_3,
-                            all_screener_df[all_screener_df.RSS.isin([1, 2])]
-                        ], ignore_index=True).drop_duplicates(subset=['patient_id'])
+                    #RSS 3 preferred
+                    if count <= num_rss_3_per_day:
+                        candidate_df = all_screener_df[all_screener_df.RSS == 3]
+
+                        if len(candidate_df) == 0:
+                            # fallback to RSS 2 then 1
+                            candidate_df = all_screener_df[all_screener_df.RSS.isin([2, 1])]
+
+                    #RSS 2 preferred
                     elif num_rss_3_per_day + num_rss_2_per_day >= patient_screener_count > num_rss_3_per_day:
-                        # rss 2
-                        all_screener_df_rss_1_3 = all_screener_df[all_screener_df.RSS.isin([1,3])]
-                        all_screener_df_rss_2 = all_screener_df[all_screener_df.RSS==2]
-                        sampled_row = all_screener_df_rss_2.sample(n=1, replace=False)
-                        RSS = sampled_row.RSS.to_list()[0]
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        patient_type = sampled_row.patient_type.to_list()[0]
-                        all_screener_df_rss_2 = all_screener_df_rss_2.drop(sampled_row.index)
-                        all_screener_df_rss_2.reset_index(drop=True, inplace=True)
-                        all_screener_df = (
-                            pd.concat(
-                                [all_screener_df_rss_2, all_screener_df_rss_1_3],
-                                ignore_index=True
-                            )
-                            .drop_duplicates(subset=['patient_id'])
-                        )
-                    else: # rss 1
-                        all_screener_df_rss_2_3 = all_screener_df[all_screener_df.RSS.isin([2,3])]
-                        all_screener_df_rss_1 = all_screener_df[all_screener_df.RSS==1]
-                        sampled_row = all_screener_df_rss_1.sample(n=1, replace=False)
-                        RSS = sampled_row.RSS.to_list()[0]
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        patient_type = sampled_row.patient_type.to_list()[0]
-                        all_screener_df_rss_1 = all_screener_df_rss_1.drop(sampled_row.index)
-                        all_screener_df_rss_1.reset_index(drop=True, inplace=True)
-                        all_screener_df = (
-                            pd.concat([all_screener_df_rss_1, all_screener_df_rss_2_3], ignore_index=True)
-                            .drop_duplicates(subset=['patient_id'])
-                        )
+                        candidate_df = all_screener_df[all_screener_df.RSS == 2]
+
+                        if len(candidate_df) == 0:
+                            # fallback to RSS 3 then 1
+                            candidate_df = all_screener_df[all_screener_df.RSS.isin([3, 1])]
+
+                    #RSS 1 preferred
+                    else:
+                        candidate_df = all_screener_df[all_screener_df.RSS == 1]
+
+                        if len(candidate_df) == 0:
+                            # fallback to RSS 2 then 3
+                            candidate_df = all_screener_df[all_screener_df.RSS.isin([2, 3])]
+
+                    #final safety check
+                    if len(candidate_df) == 0:
+                        raise RuntimeError("No screeners available in any RSS group")
+
+                    sampled_row = candidate_df.sample(n=1, replace=False)
+
+                    RSS = sampled_row.RSS.iloc[0]
+                    RSS_recall = sampled_row.RSS_recall.iloc[0]
+                    dx_in_days = sampled_row.dx_in_days.iloc[0]
+                    dx_slot_num = sampled_row.dx_slot_num.iloc[0]
+                    dx_at_day = sampled_row.dx_at_day.iloc[0]
+                    patient_type = sampled_row.patient_type.iloc[0]
+
+                    all_screener_df.drop(index=sampled_row.index, inplace=True)
 
                 # all screeners need screen mammo
                 with clinic.scanner.request() as request:

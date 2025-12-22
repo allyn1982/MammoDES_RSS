@@ -102,16 +102,16 @@ if __name__ == "__main__":
 
     # Workflow & Iterations
     parser.add_argument('--is_1ss', type=str, choices=['yes', 'no'], required=True)
-    parser.add_argument('--iterations', type=int, default=100)
+    parser.add_argument('--iterations', type=int, default=500)
     parser.add_argument('--smart', action='store_true')
 
     # RSS & Recall Parameters
     parser.add_argument('--rss1', type=float, default=0.44)
     parser.add_argument('--rss2', type=float, default=0.28)
     parser.add_argument('--rss3', type=float, default=0.28)
-    parser.add_argument('--r1_recall', type=float, default=0.01)
-    parser.add_argument('--r2_recall', type=float, default=0.01)
-    parser.add_argument('--r3_recall', type=float, default=0.51)
+    parser.add_argument('--r1_recall', type=float, default=0.06)
+    parser.add_argument('--r2_recall', type=float, default=0.12)
+    parser.add_argument('--r3_recall', type=float, default=0.18)
 
     # Clinic Resource Variables
     parser.add_argument('--num_checkin', type=int, default=3)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         "stoptime": args.stoptime
     }
 
-    seed_list = [826, 164, 715, 433, 349]
+    seed_list = [42, 1234, 2024, 0, 999]
 
     for j, seed in enumerate(seed_list):
         random.seed(seed)
@@ -180,8 +180,7 @@ if __name__ == "__main__":
         print("\n--- Simulation Complete. Running Screener Pool Consolidation ---")
 
         folder_type = "1ss" if is_1ss_bool else "no_1ss"
-        smart_suffix = "_smart"
-        path_to_logs = f'./output/output_temp_{folder_type}{smart_suffix}/'
+        path_to_logs = f'./output/output_temp_{folder_type}/'
 
         workflow_label = "1ss" if is_1ss_bool else "baseline"
 
