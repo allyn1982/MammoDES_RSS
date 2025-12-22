@@ -96,6 +96,22 @@ python run_simulation.py --is_1ss yes --smart
 <img width="728" height="220" alt="Capture" src="https://github.com/user-attachments/assets/66078a9b-9dd0-4661-96b8-a702beb803a1" />
 
 
+### 5. Post Simulation Analyses
+
+* **Baseline - RSS VS. No-RSS:**
+
+```bash
+python post_simulation_analysis.py --workflow baseline
+
+```
+
+* **Baseline - RSS VS. No-RSS:**
+
+```bash
+python post_simulation_analysis.py --workflow 1ss
+
+```
+
 ---
 
 ## Contact
