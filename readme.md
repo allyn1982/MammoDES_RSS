@@ -85,7 +85,7 @@ python run_simulation.py --is_1ss yes --smart
 ```
 
 
-### 4. Examplme Output
+### 4. Example Output - Simulation Results
 
 <img width="728" height="220" alt="Capture" src="https://github.com/user-attachments/assets/66078a9b-9dd0-4661-96b8-a702beb803a1" />
 
