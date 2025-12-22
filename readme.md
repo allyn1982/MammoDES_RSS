@@ -14,13 +14,11 @@ We developed a **Discrete Event Simulation (DES)** of a high-volume breast imagi
 * **Throughput:** RSS can modestly improve patient capacity within normal clinic hours.
 * **Wait Times:** Improvements in workflow were achieved with minimal changes to patient wait times.
 
-### RSS scheduling Flow and Categories
-![1-s2 0-S1546144024010068-gr1](https://github.com/user-attachments/assets/bff3da24-dc27-4bff-9606-fe10715deee1)
-
-
 ### Traditional VS. RSS Scheduling
 ![1-s2 0-S1546144024010068-gr2](https://github.com/user-attachments/assets/daf02024-d2ac-45b6-b33c-1f34c4ab483a)
 
+### RSS Scheduling Flow and Categories
+![1-s2 0-S1546144024010068-gr1](https://github.com/user-attachments/assets/bff3da24-dc27-4bff-9606-fe10715deee1)
 
 ### Workflows
 ![1-s2 0-S1546144024010068-gr3_lrg](https://github.com/user-attachments/assets/746b7f1b-f6d6-4034-9957-a4e93be1163e)
