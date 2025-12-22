@@ -77,14 +77,14 @@ python run_simulation.py --is_1ss yes
 
 Run the simulations again using the `--smart` flag to apply the Risk-Stratified templates.
 
-* **Baseline + RSS:**
+* **Baseline Workflow (Traditional) + RSS:**
 ```bash
 python run_simulation.py --is_1ss no --smart
 
 ```
 
 
-* **Same-Day (1SS) + RSS:**
+* **Same-Day Workflow (One-Stop Shop) + RSS:**
 ```bash
 python run_simulation.py --is_1ss yes --smart
 
@@ -100,14 +100,14 @@ python run_simulation.py --is_1ss yes --smart
 
 Compare simulation results (daily avg patient volume, waiting time, operating hours, recall variance) bewteen RSS and non-RSS scenarios
 
-* **Baseline - RSS VS. No-RSS:**
+* **Baseline Workflow (Traditional) - RSS VS. No-RSS:**
 
 ```bash
 python post_simulation_analysis.py --workflow baseline
 
 ```
 
-* **Baseline - RSS VS. No-RSS:**
+* **Same-Day Workflow (One-Stop Shop) - RSS VS. No-RSS:**
 
 ```bash
 python post_simulation_analysis.py --workflow 1ss
