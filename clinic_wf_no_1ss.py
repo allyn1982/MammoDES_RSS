@@ -4,11 +4,11 @@ import pandas as pd
 
 from params import exam_type_prob
 
-# count screeners
-patient_screener_count = 0
-
 def get_exam(env, patient, clinic, rg, pt_num_total, recall_dx,  rss_1, rss_2, rss_3, rss_1_recall, rss_2_recall, rss_3_recall,
               smart, num_days_8_rss_3, avg_num_rss_3, all_screener_df, i):
+
+    clinic.daily_screener_count = 0
+
     # patient arrives to clinic
     arrival_ts = env.now
 
@@ -139,101 +139,90 @@ def get_exam(env, patient, clinic, rg, pt_num_total, recall_dx,  rss_1, rss_2, r
             if number <= pct_screen_mammo_scheduled:
                 patient_type = 'screen'
 
-                global patient_screener_count
-                patient_screener_count += 1
+                clinic.daily_screener_count += 1
+                count = clinic.daily_screener_count
 
                 if not smart:  # no smart scheduling
-                    # determine RSS
-                    number_RSS = rg.random()
-                    if number_RSS <= rss_1:
-                        RSS = 1
-                    elif rss_1+rss_2 >= number_RSS > rss_1:
-                        RSS = 2
-                    else:
-                        RSS = 3
+                        # determine RSS
+                        number_RSS = rg.random()
+                        if number_RSS <= rss_1:
+                            RSS = 1
+                        elif rss_1+rss_2 >= number_RSS > rss_1:
+                            RSS = 2
+                        else:
+                            RSS = 3
 
-                    # determine recall
-                    number_RSS_recall = rg.random()
-                    if RSS == 1 and number_RSS_recall <= rss_1_recall:
-                        RSS_recall = 'Yes'
-                        # secure a future slot for dx
-                        dx_in_days = int(rg.normal(20, 4))
-                        dx_slot_num = random.randint(1, int(pt_num_total*0.67)) # pt_num_total*0.67 is to avoid dx img too late in a day
-                        dx_at_day = dx_in_days + i
-                    elif RSS == 1 and number_RSS_recall > rss_1_recall:
-                        RSS_recall = 'No'
-                        dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
-                    elif RSS == 2 and number_RSS_recall <= rss_2_recall:
-                        RSS_recall = 'Yes'
-                        # secure a future slot for dx
-                        dx_in_days = int(rg.normal(20, 4))
-                        dx_slot_num = random.randint(1, int(pt_num_total*0.67))
-                        dx_at_day = dx_in_days + i
-                    elif RSS == 2 and number_RSS_recall > rss_2_recall:
-                        RSS_recall = 'No'
-                        dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
-                    elif RSS == 3 and number_RSS_recall <= rss_3_recall:
-                        RSS_recall = 'Yes'
-                        # secure a future slot for dx
-                        dx_in_days = int(rg.normal(20, 4))
-                        dx_slot_num = random.randint(1, int(pt_num_total*0.67))
-                        dx_at_day = dx_in_days + i
-                    elif RSS == 3 and number_RSS_recall > rss_3_recall:
-                        RSS_recall = 'No'
-                        dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
+                        # determine recall
+                        number_RSS_recall = rg.random()
+                        if RSS == 1 and number_RSS_recall <= rss_1_recall:
+                            RSS_recall = 'Yes'
+                            # secure a future slot for dx
+                            dx_in_days = int(rg.normal(20, 4))
+                            dx_slot_num = random.randint(1, int(pt_num_total*0.67)) # pt_num_total*0.67 is to avoid dx img too late in a day
+                            dx_at_day = dx_in_days + i
+                        elif RSS == 1 and number_RSS_recall > rss_1_recall:
+                            RSS_recall = 'No'
+                            dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
+                        elif RSS == 2 and number_RSS_recall <= rss_2_recall:
+                            RSS_recall = 'Yes'
+                            # secure a future slot for dx
+                            dx_in_days = int(rg.normal(20, 4))
+                            dx_slot_num = random.randint(1, int(pt_num_total*0.67))
+                            dx_at_day = dx_in_days + i
+                        elif RSS == 2 and number_RSS_recall > rss_2_recall:
+                            RSS_recall = 'No'
+                            dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
+                        elif RSS == 3 and number_RSS_recall <= rss_3_recall:
+                            RSS_recall = 'Yes'
+                            # secure a future slot for dx
+                            dx_in_days = int(rg.normal(20, 4))
+                            dx_slot_num = random.randint(1, int(pt_num_total*0.67))
+                            dx_at_day = dx_in_days + i
+                        elif RSS == 3 and number_RSS_recall > rss_3_recall:
+                            RSS_recall = 'No'
+                            dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
+
                 else: # smart scheduling
                     # the first several days need 8 rss 3 as on average 7.3 pts not straight 7
                     # same for rss 2
                     # first days: 1-8 rss 3, 9-16 rss 2
                     # following days: 1-7 rss 3, 8-14 rss 2
+                    # determine number of RSS 3 and RSS 2 patients for the day
                     if i <= num_days_8_rss_3:
                         num_rss_3_per_day = avg_num_rss_3 + 1
                         num_rss_2_per_day = avg_num_rss_3 + 1
                     else:
                         num_rss_3_per_day = avg_num_rss_3
                         num_rss_2_per_day = avg_num_rss_3
-                    if patient_screener_count <= num_rss_3_per_day: # rss 3
-                        all_screener_df_rss_3 = all_screener_df[all_screener_df.RSS==3]
-                        sampled_row = all_screener_df_rss_3.sample(n=1, replace=False)
-                        RSS = 3
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        all_screener_df_rss_3 = all_screener_df_rss_3.drop(sampled_row.index)
-                        all_screener_df_rss_3.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_3.append(all_screener_df[all_screener_df.RSS.isin([1,2])])
-                    elif num_rss_3_per_day + num_rss_2_per_day >= patient_screener_count > num_rss_3_per_day:
-                        # rss 2
-                        all_screener_df_rss_1_3 = all_screener_df[all_screener_df.RSS.isin([1,3])]
-                        all_screener_df_rss_2 = all_screener_df[all_screener_df.RSS==2]
-                        sampled_row = all_screener_df_rss_2.sample(n=1, replace=False)
-                        RSS = sampled_row.RSS.to_list()[0]
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        all_screener_df_rss_2 = all_screener_df_rss_2.drop(sampled_row.index)
-                        all_screener_df_rss_2.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_2.append(all_screener_df_rss_1_3)
-                    else: # rss 1
-                        all_screener_df_rss_2_3 = all_screener_df[all_screener_df.RSS.isin([2,3])]
-                        all_screener_df_rss_1 = all_screener_df[all_screener_df.RSS==1]
-                        sampled_row = all_screener_df_rss_1.sample(n=1, replace=False)
-                        RSS = sampled_row.RSS.to_list()[0]
-                        RSS_recall = sampled_row.RSS_recall.to_list()[0]
-                        dx_in_days = sampled_row.dx_in_days.to_list()[0]
-                        dx_slot_num = sampled_row.dx_slot_num.to_list()[0]
-                        dx_at_day = sampled_row.dx_at_day.to_list()[0]
-                        all_screener_df_rss_1 = all_screener_df_rss_1.drop(sampled_row.index)
-                        all_screener_df_rss_1.reset_index(drop=True, inplace=True)
-                        all_screener_df = all_screener_df_rss_1.append(all_screener_df_rss_2_3)
+
+                    # determine which RSS group to sample from based on daily count
+                    if count <= num_rss_3_per_day:
+                        candidate_df = all_screener_df[all_screener_df.RSS == 3]
+                    elif count <= num_rss_3_per_day + num_rss_2_per_day:
+                        candidate_df = all_screener_df[all_screener_df.RSS == 2]
+                    else:
+                        candidate_df = all_screener_df[all_screener_df.RSS == 1]
+
+                    # fallback: if no candidates in preferred RSS group, sample from remaining screeners
+                    if candidate_df.empty:
+                        candidate_df = all_screener_df
+
+                    # sample one patient and remove from the pool
+                    sampled_row = candidate_df.sample(n=1, replace=False)
+                    RSS = sampled_row.RSS.iloc[0]
+                    RSS_recall = sampled_row.RSS_recall.iloc[0]
+                    dx_in_days = sampled_row.dx_in_days.iloc[0]
+                    dx_slot_num = sampled_row.dx_slot_num.iloc[0]
+                    dx_at_day = sampled_row.dx_at_day.iloc[0]
+                    patient_type = sampled_row.patient_type.iloc[0]
+
+                    all_screener_df.drop(index=sampled_row.index, inplace=True)
 
                 with clinic.scanner.request() as request:
-                    yield request
-                    got_screen_scanner_ts = env.now
-                    yield env.process(clinic.get_screen_mammo(patient))
-                    release_screen_scanner_ts = env.now
+                        yield request
+                        got_screen_scanner_ts = env.now
+                        yield env.process(clinic.get_screen_mammo(patient))
+                        release_screen_scanner_ts = env.now
 
             # 2. dx mammo + dx us
             if pct_screen_mammo_scheduled < number <= pct_dx_mammo_us_scheduled:

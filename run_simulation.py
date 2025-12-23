@@ -150,7 +150,7 @@ if __name__ == "__main__":
         dx_info_dict = {}
 
         if args.smart:
-            csv_suffix = "1ss_" if is_1ss_bool else ""
+            csv_suffix = "1ss_" if is_1ss_bool else "baseline_"
             all_screener_df = pd.read_csv(f'./data/all_screeners_{csv_suffix}{j}.csv')
             for key, group in all_screener_df.groupby('dx_at_day'):
                 dx_info_dict[key] = group['dx_slot_num'].tolist()
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     if not args.smart:
         print("\n--- Simulation Complete. Running Screener Pool Consolidation ---")
 
-        folder_type = "1ss" if is_1ss_bool else "no_1ss"
+        folder_type = "1ss" if is_1ss_bool else "baseline"
         path_to_logs = f'./output/output_temp_{folder_type}/'
 
         workflow_label = "1ss" if is_1ss_bool else "baseline"

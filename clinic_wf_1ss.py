@@ -19,48 +19,6 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
     # generate a random number
     number = rg.random()
 
-    # get exam type distribution based on current time
-    exam_type_distribution = exam_type_prob(arrival_ts)
-
-    pct_screen_mammo_scheduled_baseline = list(exam_type_distribution.values())[0]
-    pct_dx_mammo_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:2])
-    pct_dx_mammo_scheduled_baseline = sum(list(exam_type_distribution.values())[:3])
-    pct_dx_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:4])
-    pct_us_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:5])
-    pct_mammo_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:6])
-    pct_screen_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:7])
-    pct_mri_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:8])
-
-    ai = ai_on_dict[math.floor(arrival_ts) + 7]
-    # if a dx reall has been taken care of same day as the screen mammo
-    if recall_dx:
-        recall_yn = 'Yes'
-    else:
-        recall_yn = 'No'
-        if ai:
-            pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline * (1 - avg_recall_rate)
-            pct_screen_mammo_after_ai_dx_mammo_us_scheduled = pct_screen_mammo_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.7
-            pct_screen_mammo_after_ai_dx_mammo_scheduled = pct_screen_mammo_after_ai_dx_mammo_us_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.15
-            pct_screen_mammo_after_ai_us_scheduled = pct_screen_mammo_scheduled_baseline
-            pct_dx_mammo_us_scheduled = pct_dx_mammo_us_scheduled_baseline
-            pct_dx_mammo_scheduled = pct_dx_mammo_scheduled_baseline
-            pct_dx_us_scheduled = pct_dx_us_scheduled_baseline
-            pct_us_guided_bx_scheduled = pct_us_guided_bx_scheduled_baseline
-            pct_mammo_guided_bx_scheduled = pct_mammo_guided_bx_scheduled_baseline
-            pct_screen_us_scheduled = pct_screen_us_scheduled_baseline
-            pct_mri_guided_bx_scheduled = pct_mri_guided_bx_scheduled_baseline
-
-        else:
-            pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline
-            pct_dx_mammo_us_scheduled = pct_dx_mammo_us_scheduled_baseline
-            pct_dx_mammo_scheduled = pct_dx_mammo_scheduled_baseline
-            pct_dx_us_scheduled = pct_dx_us_scheduled_baseline
-            pct_us_guided_bx_scheduled = pct_us_guided_bx_scheduled_baseline
-            pct_mammo_guided_bx_scheduled = pct_mammo_guided_bx_scheduled_baseline
-            pct_screen_us_scheduled = pct_screen_us_scheduled_baseline
-            pct_mri_guided_bx_scheduled = pct_mri_guided_bx_scheduled_baseline
-
-
     # define log vars
     got_checkin_staff_ts, release_checkin_staff_ts, got_change_room_ts, release_change_room_ts = pd.NA, pd.NA, pd.NA, pd.NA
     got_public_wait_room_ts, release_public_wait_room_ts, got_consent_staff_ts, release_consent_staff_ts = pd.NA, pd.NA, pd.NA, pd.NA
@@ -82,8 +40,46 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
     dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
     exit_system_ts = pd.NA
 
-    number_no_show = rg.random()
+    # get exam type distribution based on current time
+    exam_type_distribution = exam_type_prob(arrival_ts)
+
+    pct_screen_mammo_scheduled_baseline = list(exam_type_distribution.values())[0]
+    pct_dx_mammo_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:2])
+    pct_dx_mammo_scheduled_baseline = sum(list(exam_type_distribution.values())[:3])
+    pct_dx_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:4])
+    pct_us_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:5])
+    pct_mammo_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:6])
+    pct_screen_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:7])
+    pct_mri_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:8])
+
+    ai = ai_on_dict[math.floor(arrival_ts) + 7]
+
+    # if a dx reall has been taken care of same day as the screen mammo
+    if recall_dx:
+        recall_yn = 'Yes'
+    else:
+        recall_yn = 'No'
+
+        # initialize all scheduled percentages to baseline
+        pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline
+        pct_dx_mammo_us_scheduled = pct_dx_mammo_us_scheduled_baseline
+        pct_dx_mammo_scheduled = pct_dx_mammo_scheduled_baseline
+        pct_dx_us_scheduled = pct_dx_us_scheduled_baseline
+        pct_us_guided_bx_scheduled = pct_us_guided_bx_scheduled_baseline
+        pct_mammo_guided_bx_scheduled = pct_mammo_guided_bx_scheduled_baseline
+        pct_screen_us_scheduled = pct_screen_us_scheduled_baseline
+        pct_mri_guided_bx_scheduled = pct_mri_guided_bx_scheduled_baseline
+
+        # apply AI-specific adjustments
+        if ai:
+            pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline * (1 - avg_recall_rate)
+            pct_screen_mammo_after_ai_dx_mammo_us_scheduled = pct_screen_mammo_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.7
+            pct_screen_mammo_after_ai_dx_mammo_scheduled = pct_screen_mammo_after_ai_dx_mammo_us_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.15
+            pct_screen_mammo_after_ai_us_scheduled = pct_screen_mammo_scheduled_baseline
+
     # determine no show
+    number_no_show = rg.random()
+
     if number_no_show > 0.1 and not recall_dx: # skip already performed same-day dx recall
         no_show = 'No'
 
@@ -217,6 +213,7 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         dx_in_days, dx_slot_num, dx_at_day = pd.NA, pd.NA, pd.NA
                         patient_type = 'screen'
                 else:  # smart
+                    # determine number of RSS 3 and RSS 2 patients for the day
                     if i <= num_days_8_rss_3:
                         num_rss_3_per_day = avg_num_rss_3 + 1
                         num_rss_2_per_day = avg_num_rss_3 + 1
@@ -224,24 +221,20 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                         num_rss_3_per_day = avg_num_rss_3
                         num_rss_2_per_day = avg_num_rss_3
 
-                    # Replace the RSS selection with a more robust fallback
+                    # determine which RSS group to sample from based on daily count
                     if count <= num_rss_3_per_day:
                         candidate_df = all_screener_df[all_screener_df.RSS == 3]
-                    elif count <= (num_rss_3_per_day + num_rss_2_per_day):
+                    elif count <= num_rss_3_per_day + num_rss_2_per_day:
                         candidate_df = all_screener_df[all_screener_df.RSS == 2]
                     else:
                         candidate_df = all_screener_df[all_screener_df.RSS == 1]
 
-                    # If the preferred group is empty, take ANYONE left rather than crashing
-                    if len(candidate_df) == 0:
+                    # fallback: if no candidates in preferred RSS group, sample from remaining screeners
+                    if candidate_df.empty:
                         candidate_df = all_screener_df
 
-                    if len(candidate_df) == 0:
-                        # Only crash if the entire file is empty
-                        raise RuntimeError("Screener pool is completely exhausted")
-
+                    # sample one patient and remove from the pool
                     sampled_row = candidate_df.sample(n=1, replace=False)
-
                     RSS = sampled_row.RSS.iloc[0]
                     RSS_recall = sampled_row.RSS_recall.iloc[0]
                     dx_in_days = sampled_row.dx_in_days.iloc[0]

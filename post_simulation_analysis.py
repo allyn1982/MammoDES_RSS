@@ -14,7 +14,7 @@ def get_seed_num(filename):
     except:
         return None
 
-def compare_pt_volumne_end_hour(path_log, path_log_smart, end_hour=10, type='baseline'):
+def compare_pt_volume_end_hour(path_log, path_log_smart, end_hour=10, type='baseline'):
     pt_vol_list, pt_vol_list_smart = [], []
     for daily_log in os.listdir(path_log):
         for daily_log_1 in os.listdir(path_log + daily_log):
@@ -103,6 +103,8 @@ def RSS_analysis(path_log, end_hour=100, type='baseline'):
                 rss_recall_list.append(screen_df[screen_df.RSS_recall == 'Yes'].shape[0])
 
     print(f'\n--- RSS Analysis ({type}) ---')
+    print('Avg screener:', np.nanmean(rss_list))
+    print('Avg recall:', np.nanmean(rss_recall_list))
     print('% recall overall:', sum(rss_recall_list) / sum(rss_list) if sum(rss_list) > 0 else 0)
     print('Variance of recalls:', np.var(rss_recall_list))
     return rss_recall_list
@@ -145,7 +147,7 @@ if __name__ == "__main__":
     path_smart = f'./output/output_temp_{args.workflow}_smart/'
 
     if args.analysis in ['volume', 'all']:
-        compare_pt_volumne_end_hour(path_base, path_smart, end_hour=10, type=args.workflow)
+        compare_pt_volume_end_hour(path_base, path_smart, end_hour=100, type=args.workflow)
 
     if args.analysis in ['waiting', 'all']:
         compare_waiting_time(path_base, path_smart, end_hour=10, type=args.workflow)
@@ -156,7 +158,7 @@ if __name__ == "__main__":
     if args.analysis in ['rss', 'all']:
         print("Running RSS for No-Smart...")
         r_no = RSS_analysis(path_base, type=args.workflow)
+        print('-------------------------------------------------------------')
         print("Running RSS for Smart...")
         r_smart = RSS_analysis(path_smart, type=args.workflow)
         print("\nLevene Test (Variance):", stats.levene(r_no, r_smart))
-        print('-------------------------------------------------------------')
