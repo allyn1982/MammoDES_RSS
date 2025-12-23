@@ -53,7 +53,7 @@ pip install -r requirements.txt
 
 ```
 
-### 2. Phase 1: Run Baseline Simulations (Non-RSS)
+### 2. Phase 1: Run Traditional Simulations (Non-RSS)
 
 First, generate the control data by running the simulation without smart scheduling logic.
 
