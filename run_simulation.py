@@ -55,8 +55,8 @@ def run_clinic_unified(env, clinic, rg, pt_num_list, acc_pt_num_list, pt_num_tot
             cur_hour = math.floor(env.now)
 
 
-def main_simulation(i, j, is_1ss, iterations, dx_info_dict, smart, rss_params, clinic_cfg):
-    rg = default_rng(seed=i + j + 5)
+def main_simulation(i, j, is_1ss, iterations, dx_info_dict, smart, rss_params, clinic_cfg, rg):
+    # rg = default_rng(i + j +5)
 
     # Load arrival data
     num_pt_per_hour = pd.read_csv('./data/num_pt_per_hour.csv')
@@ -162,11 +162,13 @@ if __name__ == "__main__":
             num_days_8_rss_3 = 0
             avg_num_rss_3 = 0
 
+        rg = default_rng(seed=seed)
+
         for i in range(args.iterations):
             patient_screener_count = 0
             try:
                 path = main_simulation(i, j, is_1ss_bool, args.iterations, dx_info_dict, args.smart, rss_params,
-                                       clinic_cfg.copy())
+                                       clinic_cfg.copy(), rg)
 
                 log_df = pd.read_csv(path)
                 log_df = compute_durations_1ss(log_df) if is_1ss_bool else compute_durations_baseline(log_df)
@@ -175,6 +177,7 @@ if __name__ == "__main__":
                 print(f"Error in Seed {seed} Iter {i}: {e}")
 
         print(f"Completed Batch for Seed {seed}")
+
 
     if not args.smart:
         print("\n--- Simulation Complete. Running Screener Pool Consolidation ---")

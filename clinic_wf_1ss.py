@@ -20,6 +20,7 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
     number = rg.random()
 
     # define log vars
+    patient_type = ""
     got_checkin_staff_ts, release_checkin_staff_ts, got_change_room_ts, release_change_room_ts = pd.NA, pd.NA, pd.NA, pd.NA
     got_public_wait_room_ts, release_public_wait_room_ts, got_consent_staff_ts, release_consent_staff_ts = pd.NA, pd.NA, pd.NA, pd.NA
     got_gowned_wait_room_ts, release_gowned_wait_room_ts, got_screen_scanner_ts, release_screen_scanner_ts = pd.NA, pd.NA, pd.NA, pd.NA
@@ -52,35 +53,30 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
     pct_screen_us_scheduled_baseline = sum(list(exam_type_distribution.values())[:7])
     pct_mri_guided_bx_scheduled_baseline = sum(list(exam_type_distribution.values())[:8])
 
-    ai = ai_on_dict[math.floor(arrival_ts) + 7]
+    # initialize all scheduled percentages to baseline
+    pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline
+    pct_dx_mammo_us_scheduled = pct_dx_mammo_us_scheduled_baseline
+    pct_dx_mammo_scheduled = pct_dx_mammo_scheduled_baseline
+    pct_dx_us_scheduled = pct_dx_us_scheduled_baseline
+    pct_us_guided_bx_scheduled = pct_us_guided_bx_scheduled_baseline
+    pct_mammo_guided_bx_scheduled = pct_mammo_guided_bx_scheduled_baseline
+    pct_screen_us_scheduled = pct_screen_us_scheduled_baseline
+    pct_mri_guided_bx_scheduled = pct_mri_guided_bx_scheduled_baseline
 
-    # if a dx reall has been taken care of same day as the screen mammo
+    # apply AI-specific adjustments
+    ai = ai_on_dict[math.floor(arrival_ts) + 7]
+    pct_screen_mammo_after_ai_us_scheduled = pct_screen_mammo_scheduled
+
+    # if a dx recall has been taken care of same day as the screen mammo
     if recall_dx:
         recall_yn = 'Yes'
     else:
         recall_yn = 'No'
 
-        # initialize all scheduled percentages to baseline
-        pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline
-        pct_dx_mammo_us_scheduled = pct_dx_mammo_us_scheduled_baseline
-        pct_dx_mammo_scheduled = pct_dx_mammo_scheduled_baseline
-        pct_dx_us_scheduled = pct_dx_us_scheduled_baseline
-        pct_us_guided_bx_scheduled = pct_us_guided_bx_scheduled_baseline
-        pct_mammo_guided_bx_scheduled = pct_mammo_guided_bx_scheduled_baseline
-        pct_screen_us_scheduled = pct_screen_us_scheduled_baseline
-        pct_mri_guided_bx_scheduled = pct_mri_guided_bx_scheduled_baseline
-
-        # apply AI-specific adjustments
-        if ai:
-            pct_screen_mammo_scheduled = pct_screen_mammo_scheduled_baseline * (1 - avg_recall_rate)
-            pct_screen_mammo_after_ai_dx_mammo_us_scheduled = pct_screen_mammo_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.7
-            pct_screen_mammo_after_ai_dx_mammo_scheduled = pct_screen_mammo_after_ai_dx_mammo_us_scheduled + pct_screen_mammo_scheduled_baseline * avg_recall_rate * 0.15
-            pct_screen_mammo_after_ai_us_scheduled = pct_screen_mammo_scheduled_baseline
-
     # determine no show
     number_no_show = rg.random()
 
-    if number_no_show > 0.1 and not recall_dx: # skip already performed same-day dx recall
+    if number_no_show > 0.1: # skip already performed same-day dx recall
         no_show = 'No'
 
         # request a checkin staff
@@ -371,8 +367,6 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                     # print('3 - Same day rad done doing review for dx us after screen at', env.now)
 
             # 5. dx mammo + dx us
-            if not ai:
-                pct_screen_mammo_after_ai_us_scheduled = pct_screen_mammo_scheduled
             if pct_screen_mammo_after_ai_us_scheduled < number <= pct_dx_mammo_us_scheduled:
                 patient_type = 'dx mammo us'
                 request = clinic.scanner.request()
@@ -655,6 +649,7 @@ def get_exam_1ss(env, patient, clinic, rg, pt_num_total, avg_recall_rate, ai_on_
                   'dx_in_days': dx_in_days,
                   'dx_slot_num': dx_slot_num,
                   'dx_at_day': dx_at_day,
-                  'recall_yn': recall_yn
+                  'recall_yn': recall_yn,
+                  'no_show_prob': number_no_show
                   }
     clinic.timestamps_list.append(timestamps)

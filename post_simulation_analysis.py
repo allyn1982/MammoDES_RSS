@@ -15,7 +15,9 @@ def get_seed_num(filename):
         return None
 
 def compare_pt_volume_end_hour(path_log, path_log_smart, end_hour=10, type='baseline'):
-    pt_vol_list, pt_vol_list_smart = [], []
+    pt_vol_list, pt_vol_list_smart = [], [] # exclude missing
+    pt_vol_list_all, pt_vol_list_smart_all = [], []
+    pt_vol_list_noshow, pt_vol_list_smart_noshow = [], []
     for daily_log in os.listdir(path_log):
         for daily_log_1 in os.listdir(path_log + daily_log):
             number = get_seed_num(daily_log_1)
@@ -23,21 +25,30 @@ def compare_pt_volume_end_hour(path_log, path_log_smart, end_hour=10, type='base
                 log_df_baseline = pd.read_csv(path_log + daily_log + '/' + daily_log_1)
                 complete_df_baseline = log_df_baseline[log_df_baseline.exit_system_ts < end_hour]
                 pt_vol_list.append(complete_df_baseline.shape[0])
+                pt_vol_list_all.append(log_df_baseline.shape[0])
+                pt_vol_list_noshow.append(log_df_baseline[log_df_baseline.no_show == 'Yes'].shape[0])
 
     for daily_log in os.listdir(path_log_smart):
-        if not os.path.isdir(path_log_smart + daily_log): continue
         for daily_log_1 in os.listdir(path_log_smart + daily_log):
             number = get_seed_num(daily_log_1)
             if number is not None and 393 >= number >= 29:
-                log_df_1ss = pd.read_csv(path_log_smart + daily_log + '/' + daily_log_1)
-                complete_df_1ss = log_df_1ss[log_df_1ss.exit_system_ts < end_hour]
-                pt_vol_list_smart.append(complete_df_1ss.shape[0])
+                log_df_smart = pd.read_csv(path_log_smart + daily_log + '/' + daily_log_1)
+                complete_df_smart = log_df_smart[log_df_smart.exit_system_ts < end_hour]
+                pt_vol_list_smart.append(complete_df_smart.shape[0])
+                pt_vol_list_smart_all.append(log_df_smart.shape[0])
+                pt_vol_list_smart_noshow.append(log_df_smart[log_df_smart.no_show == 'Yes'].shape[0])
 
     print(f'\n--- Volume Analysis ({type}) ---')
     print('Mean pts - no smart:', np.nanmean(pt_vol_list), 'sd:', np.nanstd(pt_vol_list))
     print('Mean pts - smart:', np.nanmean(pt_vol_list_smart), 'sd:', np.nanstd(pt_vol_list_smart))
     if len(pt_vol_list) == len(pt_vol_list_smart):
         print('Wilcoxon test:', wilcoxon(pt_vol_list, pt_vol_list_smart))
+
+    # print('All - no smart', np.nanmean(pt_vol_list_all))
+    # print('All - smart:', np.nanmean(pt_vol_list_smart_all))
+    #
+    # print('No-show - no smart:', np.nanmean(pt_vol_list_noshow))
+    # print('No-show - smart:', np.nanmean(pt_vol_list_smart_noshow))
     return pt_vol_list, pt_vol_list_smart
 
 
@@ -65,7 +76,6 @@ def compare_waiting_time(path_log, path_log_smart, end_hour=10, type='baseline')
 
     # Logic for Smart
     for daily_log in os.listdir(path_log_smart):
-        if not os.path.isdir(path_log_smart + daily_log): continue
         for daily_log_1 in os.listdir(path_log_smart + daily_log):
             number = get_seed_num(daily_log_1)
             if number is not None and 393 >= number >= 29:
@@ -118,21 +128,21 @@ def compare_operating_time(path_log, path_log_smart, end_hour=100, type='baselin
                 log_df_baseline = pd.read_csv(path_log + daily_log + '/' + daily_log_1)
                 complete_df_baseline = log_df_baseline[log_df_baseline.exit_system_ts < end_hour]
                 op_time_list.append(max(complete_df_baseline.exit_system_ts.to_list()))
+
     for daily_log in os.listdir(path_log_smart):
-        for daily_log_1 in os.listdir(path_log + daily_log):
+        for daily_log_1 in os.listdir(path_log_smart + daily_log):
             number = get_seed_num(daily_log_1)
             if 393 >= number >= 29:
-                log_df_1ss = pd.read_csv(path_log_smart + daily_log + '/' + daily_log_1)
-                complete_df_1ss = log_df_1ss[log_df_1ss.exit_system_ts < end_hour]
-                op_time_list_smart.append(max(complete_df_1ss.exit_system_ts.to_list()))
+                log_df_smart = pd.read_csv(path_log_smart + daily_log + '/' + daily_log_1)
+                complete_df_smart = log_df_smart[log_df_smart.exit_system_ts < end_hour]
+                op_time_list_smart.append(max(complete_df_smart.exit_system_ts.to_list()))
 
     print(f'\n--- Operating Hours Analysis ({type}) ---')
     print('Ave operating time in hours - no smart: ', np.nanmean(op_time_list),
           ', sd: ', np.nanstd(op_time_list))
     print('Ave operating time in hours - smart: ', np.nanmean(op_time_list_smart),
           ', sd: ', np.nanstd(op_time_list_smart))
-
-    print('Wilcoxon test: ', wilcoxon(op_time_list, op_time_list_smart))
+    print('Rank-Sum test: ', ranksums(op_time_list, op_time_list_smart))
 
 
 
@@ -147,7 +157,7 @@ if __name__ == "__main__":
     path_smart = f'./output/output_temp_{args.workflow}_smart/'
 
     if args.analysis in ['volume', 'all']:
-        compare_pt_volume_end_hour(path_base, path_smart, end_hour=100, type=args.workflow)
+        compare_pt_volume_end_hour(path_base, path_smart, end_hour=10, type=args.workflow)
 
     if args.analysis in ['waiting', 'all']:
         compare_waiting_time(path_base, path_smart, end_hour=10, type=args.workflow)

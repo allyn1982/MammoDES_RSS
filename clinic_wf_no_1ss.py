@@ -42,6 +42,7 @@ def get_exam(env, patient, clinic, rg, pt_num_total, recall_dx,  rss_1, rss_2, r
         recall_yn = 'No'
 
     # define log vars
+    patient_type = ""
     got_checkin_staff_ts, release_checkin_staff_ts, got_public_wait_room_ts, release_public_wait_room_ts = pd.NA, pd.NA, pd.NA, pd.NA
     got_consent_staff_ts, release_consent_staff_ts, got_change_room_ts, release_change_room_ts = pd.NA, pd.NA, pd.NA, pd.NA
     got_gowned_wait_room_ts, release_gowned_wait_room_ts, got_screen_scanner_ts, release_screen_scanner_ts = pd.NA, pd.NA, pd.NA, pd.NA
